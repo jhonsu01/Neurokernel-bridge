@@ -64,6 +64,10 @@ cp .env.example .env
 # Edit the .env file and add your AI Agent API Key
 # nano .env
 # ANTHROPIC_API_KEY="your_api_key_here"
+# Create bot with @BotFather, get token
+# TELEGRAM_BOT_TOKEN="your_api_key_here"
+# TELEGRAM_CHAT_ID= "youID"
+# ID send @userinfobot ID telegram
 ```
 
 ### 3. Run the Orchestrator
