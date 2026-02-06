@@ -20,6 +20,7 @@ token.json
 # Esta carpeta contiene el motor de memoria para proyectos de código
 # El agente la utiliza pero no debe versionarse
 claude-mem-main/
+.claude
 
 # Dependencias
 node_modules/
