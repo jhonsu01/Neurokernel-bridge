@@ -180,9 +180,9 @@ All commands are restricted to the configured `TELEGRAM_CHAT_ID`.
 *   `/cat <path>`: Reads the first 50 lines of a specified file.
 *   `/mkdir <path>`: Creates a new directory.
 *   `/touch <path>`: Creates a new empty file.
-*   `/cmd <command>`: Executes a shell command. **Use with extreme caution.**
+*   `/cmd <command>`: Executes a shell command. **Use with extreme caution.** For example, to shut down the computer, you could use: `/cmd shutdown now`. Any other shell command can be executed in the same way.
 
-For security reasons, commands like `/shutdown`, `/reboot`, and `/logout` are disabled.
+For security reasons, direct commands like `/shutdown`, `/reboot`, and `/logout` are disabled. However, the same functionality can be achieved using the `/cmd` command (e.g., `/cmd shutdown now`).
 
 ---
 
