@@ -10,10 +10,11 @@ A practical guide with instructions for installation, configuration, execution, 
 2.  [System Requirements](#2-system-requirements)
 3.  [Installation](#3-installation)
 4.  [Configuration](#4-configuration)
-5.  [Execution](#5-execution)
-6.  [Operating Modes](#6-operating-modes)
-7.  [Reading Logs](#7-reading-logs)
-8.  [Troubleshooting](#8-troubleshooting)
+5.  [Telegram Integration](#5-telegram-integration)
+6.  [Execution](#6-execution)
+7.  [Operating Modes](#7-operating-modes)
+8.  [Reading Logs](#8-reading-logs)
+9.  [Troubleshooting](#9-troubleshooting)
 
 ---
 
@@ -150,7 +151,42 @@ LIAK_LOG_LEVEL=DEBUG sudo -E python3 execution/orchestrator/main.py
 
 ---
 
-## 5. Execution
+## 5. Telegram Integration
+
+NeuroKernel Bridge can integrate with a Telegram bot to send real-time security alerts and allow for remote administration via chat commands.
+
+### Configuration
+
+To enable the bot, you need to provide a bot token and your chat ID in the `.env` file.
+
+1.  **Create a Bot**: Talk to `@BotFather` on Telegram and follow the instructions to create a new bot. You will receive a unique token.
+2.  **Get your Chat ID**: After starting your bot, send it a message. Then, open your browser and go to `https://api.telegram.org/bot<YOUR_TOKEN>/getUpdates`. Look for the `result.message.chat.id` field in the JSON response.
+3.  **Set Environment Variables**: Add the following variables to your `.env` file:
+    ```env
+    TELEGRAM_BOT_TOKEN=your-token-from-botfather
+    TELEGRAM_CHAT_ID=your-chat-id
+    ```
+
+The bot will connect automatically when you start the main orchestrator.
+
+### Available Commands
+
+All commands are restricted to the configured `TELEGRAM_CHAT_ID`.
+
+*   `/help` or `/start`: Displays the list of available commands.
+*   `/status`: Shows the current monitor status, including uptime, processed events, and decision statistics.
+*   `/home`: Lists the contents of the home directory of the user running the script.
+*   `/ls <path>`: Lists the contents of the specified directory path.
+*   `/cat <path>`: Reads the first 50 lines of a specified file.
+*   `/mkdir <path>`: Creates a new directory.
+*   `/touch <path>`: Creates a new empty file.
+*   `/cmd <command>`: Executes a shell command. **Use with extreme caution.**
+
+For security reasons, commands like `/shutdown`, `/reboot`, and `/logout` are disabled.
+
+---
+
+## 6. Execution
 
 ### Start the Monitor
 ```bash
@@ -162,7 +198,7 @@ You should see a startup banner confirming the monitor is active.
 Press `Ctrl+C` once for a graceful shutdown.
 
 ---
-## 6. Operating Modes
+## 7. Operating Modes
 
 ### DRY-RUN (Default)
 The monitor observes and classifies all events but **takes no action**. It is ideal for initial setup and verifying for false positives. Logs will show what the monitor *would have* done (e.g., `dry_run_would_block`).
@@ -176,7 +212,7 @@ The monitor takes real actions:
 Enable this mode by setting `LIAK_DRY_RUN=false` in your `.env` file or on the command line.
 
 ---
-## 7. Reading Logs
+## 8. Reading Logs
 
 Logs are written in JSONL format to `logs/orchestrator.jsonl`. Each line is a JSON object representing an event.
 
@@ -207,7 +243,7 @@ A healthy system should have very few `MALICIOUS` or `process_blocked` events in
 
 ---
 
-## 8. Troubleshooting
+## 9. Troubleshooting
 
 ### Error: "This program requires root privileges"
 The eBPF probes require root access. Run the command with `sudo`.

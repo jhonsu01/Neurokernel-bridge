@@ -14,3 +14,4 @@ This directory contains the core logic for the NeuroKernel Bridge. It is respons
     *   `batching/`: Collects and batches events from the kernel for more efficient processing.
     *   `config.py`: Manages configuration loaded from `.env` files.
     *   `models.py`: Defines the Pydantic data models for events and decisions.
+    *   `telegram/`: Provides an optional Telegram bot for real-time alerts and remote administration.
