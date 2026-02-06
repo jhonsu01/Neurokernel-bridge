@@ -74,7 +74,7 @@ Execute with root privileges, which are required for eBPF. The `-E` flag preserv
 chmod +x setup.sh
 sudo ./setup.sh
 
-chmod +x setup.sh
+chmod +x run.sh
 sudo ./run.sh
 ```
 
