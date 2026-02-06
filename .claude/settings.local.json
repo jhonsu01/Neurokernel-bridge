@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(dpkg:*)",
+      "Bash(pip3 list:*)",
+      "Bash(python3:*)",
+      "Bash(ulimit:*)",
+      "Bash(pip install:*)",
+      "Bash(sudo pip install:*)",
+      "Bash(lscpu:*)",
+      "Bash(1 <<'PYEOF'\nimport sys\n\nclass ImportTracer:\n    def find_module\\(self, name, path=None\\):\n        sys.stderr.write\\(f'importing: {name}\\\\n'\\)\n        sys.stderr.flush\\(\\)\n        return None\n\nsys.meta_path.insert\\(0, ImportTracer\\(\\)\\)\nimport chromadb\nPYEOF)",
+      "Bash(sudo cat:*)",
+      "Bash(wc:*)",
+      "Bash(done)",
+      "Bash(for file in /home/pc/Descargas/LinuxIAKernel/tests/unit/*.py /home/pc/Descargas/LinuxIAKernel/tests/ebpf/*.py)",
+      "Bash(do if [[ -f \"$file\" ]])",
+      "Bash(pytest:*)",
+      "Bash(while IFS= read -r line)",
+      "Bash(do echo \"$line\")",
+      "Bash(sudo pip3 install:*)",
+      "Bash(curl:*)",
+      "Bash(sudo kill:*)",
+      "Bash(kill:*)"
+    ]
+  }
+}

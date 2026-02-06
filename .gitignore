@@ -1,0 +1,66 @@
+# ===========================================
+# Sistema de Orquestación Agéntica v4.0
+# ===========================================
+
+# Archivos temporales e intermedios
+.tmp/
+*.tmp
+*.temp
+
+# Credenciales y secretos
+.env
+.env.local
+.env.*.local
+credentials.json
+token.json
+*.pem
+*.key
+
+# Sistema de Memoria Agéntica (uso interno del agente)
+# Esta carpeta contiene el motor de memoria para proyectos de código
+# El agente la utiliza pero no debe versionarse
+claude-mem-main/
+
+# Dependencias
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+.Python
+venv/
+env/
+.venv/
+
+# IDEs y editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs/
+*.log
+
+# ChromaDB persistent storage
+system_memory/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
+build/
+*.egg-info/
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# OS generated
+Thumbs.db
+ehthumbs.db
+Desktop.ini
