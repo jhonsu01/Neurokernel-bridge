@@ -7,7 +7,9 @@
 # Uso: chmod +x setup.sh && sudo ./setup.sh
 # ============================================================
 
-set -euo pipefail
+set -uo pipefail
+# No usamos set -e: si falla un paso (ej: headers no disponibles),
+# el script continua e informa al final.
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -48,8 +50,55 @@ fi
 # --- 2. Install system packages ---
 print_step "Instalando dependencias del sistema..."
 
+install_kernel_headers_debian() {
+    local kver
+    kver="$(uname -r)"
+
+    # --- WSL2: kernel de Microsoft, no hay headers en apt ---
+    if echo "$kver" | grep -qi "microsoft\|WSL"; then
+        print_warn "Kernel WSL2 detectado ($kver)"
+        print_warn "WSL2 usa un kernel de Microsoft que no tiene headers en apt."
+        print_warn "Instalando headers genéricos como fallback..."
+        apt-get install -y linux-headers-generic 2>/dev/null || true
+        return 0
+    fi
+
+    # --- Proxmox (PVE): headers en paquete pve-headers ---
+    if echo "$kver" | grep -qi "pve"; then
+        print_warn "Kernel Proxmox detectado ($kver)"
+        # Agregar repo de Proxmox si no existe
+        if ! apt-cache show "pve-headers-$kver" >/dev/null 2>&1; then
+            print_warn "Intentando agregar repositorio Proxmox..."
+            local pve_major
+            pve_major=$(echo "$kver" | grep -oP '\d+\.\d+' | head -1)
+            local codename
+            codename=$(lsb_release -cs 2>/dev/null || echo "bookworm")
+            if [ ! -f /etc/apt/sources.list.d/pve-no-subscription.list ]; then
+                echo "deb http://download.proxmox.com/debian/pve $codename pve-no-subscription" \
+                    > /etc/apt/sources.list.d/pve-no-subscription.list
+                # Agregar GPG key de Proxmox
+                wget -qO- "https://enterprise.proxmox.com/debian/proxmox-release-$codename.gpg" \
+                    | gpg --dearmor -o /etc/apt/trusted.gpg.d/proxmox-release.gpg 2>/dev/null || true
+                apt-get update -qq
+            fi
+        fi
+        apt-get install -y "pve-headers-$kver" 2>/dev/null \
+            || apt-get install -y pve-headers 2>/dev/null \
+            || { print_warn "No se pudieron instalar pve-headers. Instala manualmente:"; \
+                 print_warn "  apt install pve-headers-$kver"; }
+        return 0
+    fi
+
+    # --- Kernel estándar ---
+    apt-get install -y "linux-headers-$kver" 2>/dev/null \
+        || apt-get install -y linux-headers-generic 2>/dev/null \
+        || print_warn "No se pudieron instalar headers para $kver"
+}
+
 install_debian() {
     apt-get update -qq
+
+    # Instalar todo menos headers (que requieren lógica especial)
     apt-get install -y \
         python3 \
         python3-pip \
@@ -57,28 +106,36 @@ install_debian() {
         bpfcc-tools \
         python3-bpfcc \
         libbpfcc-dev \
-        linux-headers-"$(uname -r)" \
         clang \
         llvm \
         libelf-dev \
         gcc \
         make
+
+    # Headers con detección inteligente de kernel
+    install_kernel_headers_debian
 }
 
 install_fedora() {
+    local kver
+    kver="$(uname -r)"
+
     dnf install -y \
         python3 \
         python3-pip \
         bcc \
         bcc-tools \
         python3-bcc \
-        kernel-devel-"$(uname -r)" \
-        kernel-headers-"$(uname -r)" \
         clang \
         llvm \
         elfutils-libelf-devel \
         gcc \
         make
+
+    # Headers con fallback
+    dnf install -y "kernel-devel-$kver" "kernel-headers-$kver" 2>/dev/null \
+        || dnf install -y kernel-devel kernel-headers 2>/dev/null \
+        || print_warn "No se pudieron instalar kernel headers para $kver"
 }
 
 install_arch() {
@@ -130,11 +187,33 @@ print_ok "Paquetes del sistema instalados"
 print_step "Verificando kernel headers..."
 KERNEL_VERSION="$(uname -r)"
 HEADER_DIR="/lib/modules/$KERNEL_VERSION/build"
+IS_WSL=0
+if echo "$KERNEL_VERSION" | grep -qi "microsoft\|WSL"; then
+    IS_WSL=1
+fi
+
 if [ -d "$HEADER_DIR" ]; then
     print_ok "Headers encontrados: $HEADER_DIR"
+elif [ "$IS_WSL" -eq 1 ]; then
+    print_warn "WSL2 detectado - headers no disponibles via apt"
+    print_warn "BCC puede funcionar sin headers en WSL2 si el kernel tiene BTF"
+    if [ -f "/sys/kernel/btf/vmlinux" ]; then
+        print_ok "BTF disponible - BCC deberia funcionar sin headers"
+    else
+        print_warn "BTF no disponible. eBPF podria fallar en este WSL2."
+        print_warn "Opciones: 1) Recompilar kernel WSL2 con CONFIG_DEBUG_INFO_BTF=y"
+        print_warn "          2) Usar un kernel WSL2 mas reciente"
+    fi
+elif echo "$KERNEL_VERSION" | grep -qi "pve"; then
+    print_warn "Kernel Proxmox ($KERNEL_VERSION) - verifica que pve-headers este instalado"
+    if dpkg -l "pve-headers-$KERNEL_VERSION" 2>/dev/null | grep -q "^ii"; then
+        print_ok "pve-headers-$KERNEL_VERSION instalado"
+    else
+        print_warn "pve-headers no encontrado. Instala: apt install pve-headers-$KERNEL_VERSION"
+    fi
 else
     print_warn "No se encontraron headers para kernel $KERNEL_VERSION"
-    print_warn "Puede que necesites: apt install linux-headers-$KERNEL_VERSION"
+    print_warn "Intenta: apt install linux-headers-$KERNEL_VERSION"
 fi
 
 # --- 4. Verify kernel config (eBPF support) ---
