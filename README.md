@@ -71,7 +71,11 @@ cp .env.example .env
 Execute with root privileges, which are required for eBPF. The `-E` flag preserves the environment variables.
 
 ```bash
-sudo -E python3 execution/orchestrator/main.py
+chmod +x setup.sh
+sudo ./setup.sh
+
+chmod +x setup.sh
+sudo ./run.sh
 ```
 
 By default, the system runs in **DRY-RUN** mode, where it will only log actions but not execute them. To enable active enforcement, set `LIAK_DRY_RUN=false` in your `.env` file.
