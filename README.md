@@ -64,6 +64,10 @@ cp .env.example .env
 # Edit the .env file and add your AI Agent API Key
 # nano .env
 # ANTHROPIC_API_KEY="your_api_key_here"
+# Create bot with @BotFather, get token
+# TELEGRAM_BOT_TOKEN="your_api_key_here"
+# TELEGRAM_CHAT_ID= "youID"
+# ID send @userinfobot ID telegram
 ```
 
 ### 3. Run the Orchestrator
@@ -71,7 +75,11 @@ cp .env.example .env
 Execute with root privileges, which are required for eBPF. The `-E` flag preserves the environment variables.
 
 ```bash
-sudo -E python3 execution/orchestrator/main.py
+chmod +x setup.sh
+sudo ./setup.sh
+
+chmod +x run.sh
+sudo ./run.sh
 ```
 
 By default, the system runs in **DRY-RUN** mode, where it will only log actions but not execute them. To enable active enforcement, set `LIAK_DRY_RUN=false` in your `.env` file.
