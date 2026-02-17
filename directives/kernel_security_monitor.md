@@ -1,12 +1,5 @@
 # Kernel Security Monitor - eBPF + AI
 
-## Metadata
-
-- **Arquitectura:** HIBRIDA
-- **Score:** DET: 6 | STO: 5
-- **Temperatura LLM:** 0.1 (seguridad requiere precision)
-- **Creado:** 2026-02-05
-- **Ultima ejecucion:** 2026-02-05
 
 ## Objetivo
 
@@ -24,22 +17,6 @@ Sistema de monitoreo de seguridad del kernel Linux que utiliza eBPF para captura
 - **Logs:** JSON estructurado en `logs/orchestrator.jsonl`
 - **Memoria:** Decisiones cacheadas en ChromaDB, sesiones comprimidas en claude-mem
 
-## Flujo de Ejecucion
-
-1. **[MEM]** Cargar contexto de sesiones previas desde claude-mem
-2. **[DET]** Cargar sensor eBPF y attach 11 probes
-3. **[DET]** Registrar PID propio en pid_filter
-4. **[DET]** Abrir 5 perf buffers (exec, file, net, resource, suspicious)
-5. **[HYB]** Loop principal:
-   - **[DET]** Poll perf buffers (thread BPF)
-   - **[DET]** Batch events (ventana 1s o 50 eventos)
-   - **[DET]** Tier 1: Evaluar reglas deterministicas
-   - **[DET]** Tier 2: Buscar en cache ChromaDB
-   - **[STO]** Tier 3: Escalar a Claude API (solo ambiguos)
-   - **[DET]** Ejecutar accion (renice/sigterm/log)
-   - **[MEM]** Registrar estadisticas
-6. **[MEM]** Sync periodico a claude-mem (cada 30 min)
-7. **[MEM]** Comprimir sesion al shutdown
 
 ## Integracion Telegram
 
@@ -88,14 +65,6 @@ el event loop se satura y los comandos no responden.
 - DB: ChromaDB (local), claude-mem HTTP (localhost:37777)
 - Telegram: python-telegram-bot v22.6 (long polling)
 
-## Configuracion de Ejecucion
-
-- Temperatura fases DET: 0.0 (reglas puras, sin LLM)
-- Temperatura fase STO: 0.1 (precision maxima para seguridad)
-- Rate limit Tier 3: 20 llamadas/minuto
-- Confidence minima para bloqueo: 0.8
-- Batch window: 1.0s | Max batch: 50 eventos
-- File throttle en kernel: 100ms por PID
 
 ## Restricciones y Casos Borde
 
