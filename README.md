@@ -1,3 +1,4 @@
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/jhonsu01/Neurokernel-bridge)
 # NeuroKernel Bridge: A RAG-driven Orchestrator for Linux
 
 ## Abstract
