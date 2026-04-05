@@ -65,14 +65,6 @@ el event loop se satura y los comandos no responden.
 - DB: ChromaDB (local), claude-mem HTTP (localhost:37777)
 - Telegram: python-telegram-bot v22.6 (long polling)
 
-## Configuracion de Ejecucion
-
-- Temperatura fases DET: 0.0 (reglas puras, sin LLM)
-- Temperatura fase STO: 0.1 (precision maxima para seguridad)
-- Rate limit Tier 3: 20 llamadas/minuto
-- Confidence minima para bloqueo: 0.8
-- Batch window: 1.0s | Max batch: 50 eventos
-- File throttle en kernel: 100ms por PID
 
 ## Restricciones y Casos Borde
 
