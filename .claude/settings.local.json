@@ -21,7 +21,8 @@
       "Bash(sudo pip3 install:*)",
       "Bash(curl:*)",
       "Bash(sudo kill:*)",
-      "Bash(kill:*)"
+      "Bash(kill:*)",
+      "Bash(git config:*)"
     ]
   }
 }
